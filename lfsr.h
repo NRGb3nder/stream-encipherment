@@ -28,7 +28,7 @@ int LFSR<RegData>::getShiftPeriod()
 {
     int result = 0;
     RegData test;
-    // TODO?: init with 0's
+    std::memset(&test, 0, sizeof(test));
 
     test.value = ~0;
     while (test.value) {
