@@ -6,8 +6,8 @@
 #include <QMessageBox>
 #include <QThread>
 #include "types.h"
-#include "workers/cryptworker.h"
-#include "workers/lfsrdata.h"
+#include "implementation/cryptworker.h"
+#include "implementation/lfsrdata.h"
 
 namespace Ui {
 class MainWindow;

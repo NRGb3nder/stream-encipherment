@@ -26,16 +26,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    workers/cryptworker.cpp \
-    workers/cryptroutines.cpp
+    implementation/cryptroutines.cpp \
+    implementation/cryptworker.cpp
 
 HEADERS += \
         mainwindow.h \
     types.h \
-    workers/lfsrdata.h \
-    workers/lfsr.h \
-    workers/cryptroutines.h \
-    workers/cryptworker.h
+    implementation/cryptroutines.h \
+    implementation/cryptworker.h \
+    implementation/lfsr.h \
+    implementation/lfsrdata.h
 
 FORMS += \
         mainwindow.ui
