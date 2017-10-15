@@ -1,13 +1,13 @@
-#include "cryptroutines.h"
+#include "worker.h"
 
-DataBlock readBlock(QFile &inputFile)
+DataBlock Worker::readBlock(QFile &inputFile)
 {
     char result;
     inputFile.read(&result, 1);
     return result;
 }
 
-void writeBlock(DataBlock blockOut, QFile &outputFile)
+void Worker::writeBlock(DataBlock blockOut, QFile &outputFile)
 {
     char byteOut = blockOut;
     outputFile.write(&byteOut, 1);

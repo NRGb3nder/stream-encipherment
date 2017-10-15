@@ -10,10 +10,4 @@ enum ErrorType
     E_KEY_NOT_FOUND
 };
 
-enum WorkerMode
-{
-    MODE_ENCIPHER,
-    MODE_DECIPHER
-};
-
 #endif // TYPES_H

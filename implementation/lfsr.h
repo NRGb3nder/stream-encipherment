@@ -3,8 +3,7 @@
 
 #include <QDataStream>
 #include <vector>
-
-typedef quint8 DataBlock;
+#include "common.h"
 
 template <typename T>
 class LFSR

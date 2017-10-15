@@ -6,7 +6,9 @@
 #include <QMessageBox>
 #include <QThread>
 #include "types.h"
-#include "implementation/cryptworker.h"
+#include "implementation/workers/worker.h"
+#include "implementation/workers/simplecryptworker.h"
+#include "implementation/workers/geffeworker.h"
 #include "implementation/lfsrdata.h"
 
 namespace Ui {
@@ -47,9 +49,9 @@ private:
     void enableRC4Mode(bool);
     void displayError(ErrorType);
     void runSimpleStreamEncryptionMode(QString inputFileName, QString outputFileName);
-    //void runGeffeCipherMode(QString inputFileName, QString outputFileName);
+    void runGeffeMode(QString inputFileName, QString outputFileName);
     //void runRC4Mode(QString inputFileName, QString outputFileName);
-    QThread *getCryptWorkerThread(CryptWorker *);
+    QThread *getWorkerThread(Worker *);
 };
 
 #endif // MAINWINDOW_H

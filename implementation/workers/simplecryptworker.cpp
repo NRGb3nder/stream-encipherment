@@ -1,15 +1,13 @@
-#include "cryptworker.h"
+#include "simplecryptworker.h"
 
-CryptWorker::CryptWorker(QString inputFileName, QString outputFileName, LFSRData::ContentLFSR1 initKey,
-        QObject *parent) :
-        QObject(parent),
-        inputFileName(inputFileName),
-        outputFileName(outputFileName)
+SimpleCryptWorker::SimpleCryptWorker(QString inputFileName, QString outputFileName, LFSRData::ContentLFSR1 initKey)
 {
+    Worker::inputFileName = inputFileName;
+    Worker::outputFileName = outputFileName;
     reg = new LFSR<LFSRData::ContentLFSR1>(initKey, LFSRData::tapsLFSR1);
 }
 
-void CryptWorker::startWork()
+void SimpleCryptWorker::startWork()
 {
     const int ELEM_SIZE = sizeof(DataBlock) * 8 + 1;
     const int HEADER_MAX_LENGTH = ELEM_SIZE * 32;

@@ -7,7 +7,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->edtSimpleLFSR->setMaxLength(LFSRData::LFSR1_BITFIELD_SIZE);
+    ui->edtSimpleLFSR1->setMaxLength(LFSRData::LFSR1_BITFIELD_SIZE);
+    ui->edtGeffeLFSR1->setMaxLength(LFSRData::LFSR1_BITFIELD_SIZE);
+    ui->edtGeffeLFSR2->setMaxLength(LFSRData::LFSR2_BITFIELD_SIZE);
+    ui->edtGeffeLFSR3->setMaxLength(LFSRData::LFSR3_BITFIELD_SIZE);
     setInputValidators();
 }
 
@@ -18,8 +21,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::setInputValidators()
 {
-    QValidator *inputValidator = new QRegExpValidator(QRegExp("[01]*"), this);
-    ui->edtSimpleLFSR->setValidator(inputValidator);
+    QValidator *validatorBinary = new QRegExpValidator(QRegExp("[01]*"), this);
+    ui->edtSimpleLFSR1->setValidator(validatorBinary);
+    ui->edtGeffeLFSR1->setValidator(validatorBinary);
+    ui->edtGeffeLFSR2->setValidator(validatorBinary);
+    ui->edtGeffeLFSR1->setValidator(validatorBinary);
 }
 
 void MainWindow::enableSimpleStreamEncryptionMode(bool enabled)
@@ -29,7 +35,6 @@ void MainWindow::enableSimpleStreamEncryptionMode(bool enabled)
     if (enabled) {
         enableGeffeCipherMode(false);
         enableRC4Mode(false);
-        ui->grpMode->setEnabled(false);
     }
 }
 
@@ -40,7 +45,6 @@ void MainWindow::enableGeffeCipherMode(bool enabled)
     if (enabled) {
         enableSimpleStreamEncryptionMode(false);
         enableRC4Mode(false);
-        ui->grpMode->setEnabled(true);
     }
 }
 
@@ -51,7 +55,6 @@ void MainWindow::enableRC4Mode(bool enabled)
     if (enabled) {
         enableGeffeCipherMode(false);
         enableSimpleStreamEncryptionMode(false);
-        ui->grpMode->setEnabled(true);
     }
 }
 
@@ -69,7 +72,7 @@ void MainWindow::displayError(ErrorType error)
             mbError.setText("File output error!");
             break;
         case E_KEY_NOT_FOUND:
-            mbError.setText("Binary key required for procedure execution!");
+            mbError.setText("Initial key required for procedure execution!");
             break;
         default:
             mbError.setText("Unknown error!");
@@ -81,29 +84,59 @@ void MainWindow::displayError(ErrorType error)
 
 void MainWindow::runSimpleStreamEncryptionMode(QString inputFileName, QString outputFileName)
 {
-    ui->txtLog->appendPlainText("Mode: Simple Stream Encryption/Decryption");
+    ui->txtLog->appendPlainText("Mode: Simple Stream");
 
-    if (ui->edtSimpleLFSR->text().isEmpty()) {
-        ui->txtLog->appendPlainText("Error: LFSR1 initial key not found!");
+    if (ui->edtSimpleLFSR1->text().isEmpty()) {
+        ui->txtLog->appendPlainText("Error: Initial key not found!");
         ui->txtLog->appendPlainText("\nProcess failed.");
         displayError(E_KEY_NOT_FOUND);
     } else {
         LFSRData::ContentLFSR1 initKey;
-        initKey.value = ui->edtSimpleLFSR->text().toUInt(0, 2);
+        initKey.value = ui->edtSimpleLFSR1->text().toULong(0, 2);
 
-        ui->txtLog->appendPlainText("LFSR1 init key: " + ui->edtSimpleLFSR->text());
+        ui->txtLog->appendPlainText("LFSR1 init key: " + ui->edtSimpleLFSR1->text());
 
         MainWindow::setEnabled(false);
 
-        CryptWorker *worker = new CryptWorker(inputFileName, outputFileName, initKey);
-        QThread *workerThread = getCryptWorkerThread(worker);
+        SimpleCryptWorker *worker = new SimpleCryptWorker(inputFileName, outputFileName, initKey);
+        QThread *workerThread = getWorkerThread(worker);
 
         workerThread->start();
         emit doWork();
     }
 }
 
-QThread *MainWindow::getCryptWorkerThread(CryptWorker *worker)
+void MainWindow::runGeffeMode(QString inputFileName, QString outputFileName)
+{
+    ui->txtLog->appendPlainText("Mode: Geffe Cipher");
+    if (ui->edtGeffeLFSR1->text().isEmpty() || ui->edtGeffeLFSR2->text().isEmpty() ||
+            ui->edtGeffeLFSR3->text().isEmpty()) {
+        ui->txtLog->appendPlainText("Error: Initial key not found!");
+        ui->txtLog->appendPlainText("\nProcess failed.");
+        displayError(E_KEY_NOT_FOUND);
+    } else {
+        LFSRData::ContentLFSR1 initKeyLFSR1;
+        LFSRData::ContentLFSR2 initKeyLFSR2;
+        LFSRData::ContentLFSR3 initKeyLFSR3;
+        initKeyLFSR1.value = ui->edtGeffeLFSR1->text().toULong(0, 2);
+        initKeyLFSR2.value = ui->edtGeffeLFSR2->text().toULong(0, 2);
+        initKeyLFSR3.value = ui->edtGeffeLFSR3->text().toULong(0, 2);
+
+         ui->txtLog->appendPlainText("LFSR1 init key: " + ui->edtGeffeLFSR1->text());
+         ui->txtLog->appendPlainText("LFSR2 init key: " + ui->edtGeffeLFSR2->text());
+         ui->txtLog->appendPlainText("LFSR3 init key: " + ui->edtGeffeLFSR3->text());
+
+         MainWindow::setEnabled(false);
+
+         Worker *worker = new GeffeWorker(inputFileName, outputFileName, initKeyLFSR1, initKeyLFSR2, initKeyLFSR3);
+         QThread *workerThread = getWorkerThread(worker);
+
+         workerThread->start();
+         emit doWork();
+    }
+}
+
+QThread *MainWindow::getWorkerThread(Worker *worker)
 {
     QThread *workerThread = new QThread();
 
@@ -121,7 +154,7 @@ QThread *MainWindow::getCryptWorkerThread(CryptWorker *worker)
 
 void MainWindow::workDone(QString sourceContent, QString resultContent, QString keyContent)
 {
-    CryptWorker *worker = static_cast<CryptWorker *>(sender());
+    Worker *worker = static_cast<Worker *>(sender());
     delete worker;
 
     ui->txtResult->appendPlainText(resultContent);
@@ -190,9 +223,15 @@ void MainWindow::on_btnExecute_clicked()
     outputFile.close();
 
     ui->txtLog->clear();
+    ui->txtLog->appendPlainText("Input file: " + inputFileName);
     ui->txtLog->appendPlainText("Input file size: " + QString::number(inputFile.size()) + " byte");
+    ui->txtLog->appendPlainText("Output file: " + outputFileName);
 
     if (ui->rbtnSimple->isChecked()) {
         runSimpleStreamEncryptionMode(inputFileName, outputFileName);
+    } else {
+        if (ui->rbtnGeffe->isChecked()) {
+            runGeffeMode(inputFileName, outputFileName);
+        }
     }
 }
