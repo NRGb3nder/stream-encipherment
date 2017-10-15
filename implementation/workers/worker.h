@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QFile>
-#include "implementation/common.h"
 
 class Worker : public QObject
 {
@@ -15,8 +14,8 @@ public:
 protected:
     QString inputFileName;
     QString outputFileName;
-    DataBlock readBlock(QFile &inputFile);
-    void writeBlock(DataBlock blockOut, QFile &outputFile);
+    quint8 readBlock(QFile &inputFile);
+    void writeBlock(quint8 blockOut, QFile &outputFile);
 
 signals:
     void progress(int progressValue);

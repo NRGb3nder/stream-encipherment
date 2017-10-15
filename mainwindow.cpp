@@ -74,6 +74,9 @@ void MainWindow::displayError(ErrorType error)
         case E_KEY_NOT_FOUND:
             mbError.setText("Initial key required for procedure execution!");
             break;
+        case E_INVALID_KEY:
+            mbError.setText("Invalid key value!");
+            break;
         default:
             mbError.setText("Unknown error!");
             break;
@@ -87,7 +90,7 @@ void MainWindow::runSimpleStreamEncryptionMode(QString inputFileName, QString ou
     ui->txtLog->appendPlainText("Mode: Simple Stream");
 
     if (ui->edtSimpleLFSR1->text().isEmpty()) {
-        ui->txtLog->appendPlainText("Error: Initial key not found!");
+        ui->txtLog->appendPlainText("Error: initial key not found!");
         ui->txtLog->appendPlainText("\nProcess failed.");
         displayError(E_KEY_NOT_FOUND);
     } else {
@@ -109,9 +112,10 @@ void MainWindow::runSimpleStreamEncryptionMode(QString inputFileName, QString ou
 void MainWindow::runGeffeMode(QString inputFileName, QString outputFileName)
 {
     ui->txtLog->appendPlainText("Mode: Geffe Cipher");
+
     if (ui->edtGeffeLFSR1->text().isEmpty() || ui->edtGeffeLFSR2->text().isEmpty() ||
             ui->edtGeffeLFSR3->text().isEmpty()) {
-        ui->txtLog->appendPlainText("Error: Initial key not found!");
+        ui->txtLog->appendPlainText("Error: initial key not found!");
         ui->txtLog->appendPlainText("\nProcess failed.");
         displayError(E_KEY_NOT_FOUND);
     } else {
@@ -122,17 +126,55 @@ void MainWindow::runGeffeMode(QString inputFileName, QString outputFileName)
         initKeyLFSR2.value = ui->edtGeffeLFSR2->text().toULong(0, 2);
         initKeyLFSR3.value = ui->edtGeffeLFSR3->text().toULong(0, 2);
 
-         ui->txtLog->appendPlainText("LFSR1 init key: " + ui->edtGeffeLFSR1->text());
-         ui->txtLog->appendPlainText("LFSR2 init key: " + ui->edtGeffeLFSR2->text());
-         ui->txtLog->appendPlainText("LFSR3 init key: " + ui->edtGeffeLFSR3->text());
+        ui->txtLog->appendPlainText("LFSR1 init key: " + ui->edtGeffeLFSR1->text());
+        ui->txtLog->appendPlainText("LFSR2 init key: " + ui->edtGeffeLFSR2->text());
+        ui->txtLog->appendPlainText("LFSR3 init key: " + ui->edtGeffeLFSR3->text());
 
-         MainWindow::setEnabled(false);
+        MainWindow::setEnabled(false);
 
-         Worker *worker = new GeffeWorker(inputFileName, outputFileName, initKeyLFSR1, initKeyLFSR2, initKeyLFSR3);
-         QThread *workerThread = getWorkerThread(worker);
+        Worker *worker = new GeffeWorker(inputFileName, outputFileName, initKeyLFSR1, initKeyLFSR2, initKeyLFSR3);
+        QThread *workerThread = getWorkerThread(worker);
 
-         workerThread->start();
-         emit doWork();
+        workerThread->start();
+        emit doWork();
+    }
+}
+
+void MainWindow::runRC4Mode(QString inputFileName, QString outputFileName)
+{
+    const int KEY_PART_MAX = 255;
+
+    ui->txtLog->appendPlainText("Mode: RC4");
+
+    if (ui->edtRC4Key->text().isEmpty()) {
+        ui->txtLog->appendPlainText("Error: secret key not found");
+        ui->txtLog->appendPlainText("\nProcess failed.");
+        displayError(E_KEY_NOT_FOUND);
+    } else {
+        std::vector<quint8> secretKey;
+        QStringList secretKeyParts = ui->edtRC4Key->text().split(QRegExp(" "));
+        for (QString &str : secretKeyParts) {
+            bool isValidRC4Key;
+            uint currentValue = str.toUInt(&isValidRC4Key);
+            if (isValidRC4Key && currentValue <= KEY_PART_MAX) {
+                secretKey.push_back(str.toUInt());
+            } else {
+                ui->txtLog->appendPlainText("Error: invalid secret key");
+                ui->txtLog->appendPlainText("\nProcess failed.");
+                displayError(E_INVALID_KEY);
+                return;
+            }
+        }
+
+        ui->txtLog->appendPlainText("RC4 secret key: " + ui->edtRC4Key->text());
+
+        MainWindow::setEnabled(false);
+
+        Worker *worker = new RC4Worker(inputFileName, outputFileName, secretKey);
+        QThread *workerThread = getWorkerThread(worker);
+
+        workerThread->start();
+        emit doWork();
     }
 }
 
@@ -161,6 +203,7 @@ void MainWindow::workDone(QString sourceContent, QString resultContent, QString 
     ui->txtSource->appendPlainText(sourceContent);
     ui->txtKey->appendPlainText(keyContent);
     ui->txtLog->appendPlainText("\nProcess accomplished.");
+
 
     MainWindow::setEnabled(true);
 
@@ -229,9 +272,14 @@ void MainWindow::on_btnExecute_clicked()
 
     if (ui->rbtnSimple->isChecked()) {
         runSimpleStreamEncryptionMode(inputFileName, outputFileName);
-    } else {
-        if (ui->rbtnGeffe->isChecked()) {
-            runGeffeMode(inputFileName, outputFileName);
-        }
+        return;
+    }
+    if (ui->rbtnGeffe->isChecked()) {
+        runGeffeMode(inputFileName, outputFileName);
+        return;
+    }
+    if (ui->rbtnRC4->isChecked()) {
+        runRC4Mode(inputFileName, outputFileName);
+        return;
     }
 }

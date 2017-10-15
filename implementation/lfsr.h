@@ -3,7 +3,7 @@
 
 #include <QDataStream>
 #include <vector>
-#include "common.h"
+#include "lfsrdata.h"
 
 template <typename T>
 class LFSR
@@ -18,7 +18,7 @@ private:
     void shift();
 public:
     LFSR(T initialValue, const std::vector<int> &taps);
-    DataBlock getNewKey();
+    quint8 getNewKey();
 };
 
 template <typename T>
@@ -61,11 +61,11 @@ void LFSR<T>::shift()
 }
 
 template <typename T>
-DataBlock LFSR<T>::getNewKey()
+quint8 LFSR<T>::getNewKey()
 {
-    DataBlock resultKey = 0;
+    quint8 resultKey = 0;
 
-    int dataBlockSize = static_cast<int>(sizeof(DataBlock) * 8);
+    int dataBlockSize = static_cast<int>(8);
     for (int i = 0; i < dataBlockSize; i++)
     {
         resultKey |= key.value;

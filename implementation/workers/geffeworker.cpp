@@ -13,9 +13,9 @@ GeffeWorker::GeffeWorker(QString inputFileName, QString outputFileName,
 
 void GeffeWorker::startWork()
 {
-    const int ELEM_SIZE = sizeof(DataBlock) * 8 + 1;
-    const int HEADER_MAX_LENGTH = ELEM_SIZE * 32;
-    const int CONTENT_MAX_LENGTH = HEADER_MAX_LENGTH * 2;
+    const int BIN_ELEM_SIZE = 9;
+    const int BIN_HEADER_MAX_LENGTH = BIN_ELEM_SIZE * 32;
+    const int BIN_CONTENT_MAX_LENGTH = BIN_HEADER_MAX_LENGTH * 2;
     const int KEY_QUANTITY = 3;
 
     QFile inputFile(inputFileName);
@@ -29,10 +29,10 @@ void GeffeWorker::startWork()
     QString keyContent;
     QString sourceContent;
     QString resultContent;
-    DataBlock blockIn;
-    DataBlock blockOut;
-    DataBlock keyPart[KEY_QUANTITY];
-    DataBlock resultKeyPart;
+    quint8 blockIn;
+    quint8 blockOut;
+    quint8 keyPart[KEY_QUANTITY];
+    quint8 resultKeyPart;
 
     for (quint64 i = 0; i < fileSize; i++) {
         keyPart[0] = firstReg->getNewKey();
@@ -43,34 +43,36 @@ void GeffeWorker::startWork()
         blockOut = blockIn ^ resultKeyPart;
         writeBlock(blockOut, outputFile);
 
-        if (sourceContent.length() >= CONTENT_MAX_LENGTH) {
+        if (sourceContent.length() >= BIN_CONTENT_MAX_LENGTH) {
             for (int k = 0; k < KEY_QUANTITY; k++) {
-                keyPartContent[k].remove(HEADER_MAX_LENGTH, ELEM_SIZE);
+                keyPartContent[k].remove(BIN_HEADER_MAX_LENGTH, BIN_ELEM_SIZE);
             }
-            geffeKey.remove(HEADER_MAX_LENGTH, ELEM_SIZE);
-            sourceContent.remove(HEADER_MAX_LENGTH, ELEM_SIZE);
-            resultContent.remove(HEADER_MAX_LENGTH, ELEM_SIZE);
+            geffeKey.remove(BIN_HEADER_MAX_LENGTH, BIN_ELEM_SIZE);
+            sourceContent.remove(BIN_HEADER_MAX_LENGTH, BIN_ELEM_SIZE);
+            resultContent.remove(BIN_HEADER_MAX_LENGTH, BIN_ELEM_SIZE);
         }
         for (int k = 0; k < KEY_QUANTITY; k++) {
-            keyPartContent[k].append(QString::number(keyPart[k], 2).rightJustified(sizeof(DataBlock) * 8, '0') + " ");
+            keyPartContent[k].append(QString::number(keyPart[k], 2).rightJustified(8, '0') + " ");
         }
-        geffeKey.append(QString::number(resultKeyPart, 2).rightJustified(sizeof(DataBlock) * 8, '0') + " ");
-        sourceContent.append(QString::number(blockIn, 2).rightJustified(sizeof(DataBlock) * 8, '0') + " ");
-        resultContent.append(QString::number(blockOut, 2).rightJustified(sizeof(DataBlock) * 8, '0') + " ");
+        geffeKey.append(QString::number(resultKeyPart, 2).rightJustified(8, '0') + " ");
+        sourceContent.append(QString::number(blockIn, 2).rightJustified(8, '0') + " ");
+        resultContent.append(QString::number(blockOut, 2).rightJustified(8, '0') + " ");
 
         emit progress(100 * i/fileSize);
     }
 
-    for (int k = 0; k < KEY_QUANTITY; k++) {
-        keyPartContent[k].insert(HEADER_MAX_LENGTH, "\n...\n");
+    if (keyContent.length() >= BIN_CONTENT_MAX_LENGTH) {
+        for (int k = 0; k < KEY_QUANTITY; k++) {
+            keyPartContent[k].insert(BIN_HEADER_MAX_LENGTH, "\n...\n");
+        }
+        geffeKey.insert(BIN_HEADER_MAX_LENGTH, "\n...\n");
+        keyContent = "Geffe key:\n" + geffeKey +
+                "\n\nLFSR1 key:\n" + keyPartContent[0] +
+                "\n\nLFSR2 key:\n" + keyPartContent[1] +
+                "\n\nLFSR3 key:\n" + keyPartContent[2];
+        sourceContent.insert(BIN_HEADER_MAX_LENGTH, "\n...\n");
+        resultContent.insert(BIN_HEADER_MAX_LENGTH, "\n...\n");
     }
-    geffeKey.insert(HEADER_MAX_LENGTH, "\n...\n");
-    keyContent = "Geffe key:\n" + geffeKey +
-            "\n\nLFSR1 key:\n" + keyPartContent[0] +
-            "\n\nLFSR2 key:\n" + keyPartContent[1] +
-            "\n\nLFSR3 key:\n" + keyPartContent[2];
-    sourceContent.insert(HEADER_MAX_LENGTH, "\n...\n");
-    resultContent.insert(HEADER_MAX_LENGTH, "\n...\n");
 
     inputFile.close();
     outputFile.close();

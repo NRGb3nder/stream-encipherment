@@ -9,9 +9,9 @@ SimpleCryptWorker::SimpleCryptWorker(QString inputFileName, QString outputFileNa
 
 void SimpleCryptWorker::startWork()
 {
-    const int ELEM_SIZE = sizeof(DataBlock) * 8 + 1;
-    const int HEADER_MAX_LENGTH = ELEM_SIZE * 32;
-    const int CONTENT_MAX_LENGTH = HEADER_MAX_LENGTH * 2;
+    const int BIN_ELEM_SIZE = 9;
+    const int BIN_HEADER_MAX_LENGTH = BIN_ELEM_SIZE * 32;
+    const int BIN_CONTENT_MAX_LENGTH = BIN_HEADER_MAX_LENGTH * 2;
 
     QFile inputFile(inputFileName);
     QFile outputFile(outputFileName);
@@ -22,9 +22,9 @@ void SimpleCryptWorker::startWork()
     QString keyContent;
     QString sourceContent;
     QString resultContent;
-    DataBlock blockIn;
-    DataBlock blockOut;
-    DataBlock keyPart;
+    quint8 blockIn;
+    quint8 blockOut;
+    quint8 keyPart;
 
     for (quint64 i = 0; i < fileSize; i++) {
         keyPart = reg->getNewKey();
@@ -32,21 +32,23 @@ void SimpleCryptWorker::startWork()
         blockOut = blockIn ^ keyPart;
         writeBlock(blockOut, outputFile);
 
-        if (keyContent.length() >= CONTENT_MAX_LENGTH) {
-            keyContent.remove(HEADER_MAX_LENGTH, ELEM_SIZE);
-            sourceContent.remove(HEADER_MAX_LENGTH, ELEM_SIZE);
-            resultContent.remove(HEADER_MAX_LENGTH, ELEM_SIZE);
+        if (keyContent.length() >= BIN_CONTENT_MAX_LENGTH) {
+            keyContent.remove(BIN_HEADER_MAX_LENGTH, BIN_ELEM_SIZE);
+            sourceContent.remove(BIN_HEADER_MAX_LENGTH, BIN_ELEM_SIZE);
+            resultContent.remove(BIN_HEADER_MAX_LENGTH, BIN_ELEM_SIZE);
         }
-        keyContent.append(QString::number(keyPart, 2).rightJustified(sizeof(DataBlock) * 8, '0') + " ");
-        sourceContent.append(QString::number(blockIn, 2).rightJustified(sizeof(DataBlock) * 8, '0') + " ");
-        resultContent.append(QString::number(blockOut, 2).rightJustified(sizeof(DataBlock) * 8, '0') + " ");
+        keyContent.append(QString::number(keyPart, 2).rightJustified(8, '0') + " ");
+        sourceContent.append(QString::number(blockIn, 2).rightJustified(8, '0') + " ");
+        resultContent.append(QString::number(blockOut, 2).rightJustified(8, '0') + " ");
 
         emit progress(100 * i/fileSize);
     }
 
-    keyContent.insert(HEADER_MAX_LENGTH, "\n...\n");
-    sourceContent.insert(HEADER_MAX_LENGTH, "\n...\n");
-    resultContent.insert(HEADER_MAX_LENGTH, "\n...\n");
+    if (keyContent.length() >= BIN_CONTENT_MAX_LENGTH) {
+        keyContent.insert(BIN_HEADER_MAX_LENGTH, "\n...\n");
+        sourceContent.insert(BIN_HEADER_MAX_LENGTH, "\n...\n");
+        resultContent.insert(BIN_HEADER_MAX_LENGTH, "\n...\n");
+    }
 
     inputFile.close();
     outputFile.close();

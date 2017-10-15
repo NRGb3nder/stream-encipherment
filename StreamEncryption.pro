@@ -28,7 +28,8 @@ SOURCES += \
         mainwindow.cpp \
     implementation/workers/geffeworker.cpp \
     implementation/workers/simplecryptworker.cpp \
-    implementation/workers/worker.cpp
+    implementation/workers/worker.cpp \
+    implementation/workers/rc4worker.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -37,7 +38,8 @@ HEADERS += \
     implementation/lfsrdata.h \
     implementation/workers/geffeworker.h \
     implementation/workers/simplecryptworker.h \
-    implementation/workers/worker.h
+    implementation/workers/worker.h \
+    implementation/workers/rc4worker.h
 
 FORMS += \
         mainwindow.ui

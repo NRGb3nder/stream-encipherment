@@ -9,6 +9,7 @@
 #include "implementation/workers/worker.h"
 #include "implementation/workers/simplecryptworker.h"
 #include "implementation/workers/geffeworker.h"
+#include "implementation/workers/rc4worker.h"
 #include "implementation/lfsrdata.h"
 
 namespace Ui {
@@ -50,7 +51,7 @@ private:
     void displayError(ErrorType);
     void runSimpleStreamEncryptionMode(QString inputFileName, QString outputFileName);
     void runGeffeMode(QString inputFileName, QString outputFileName);
-    //void runRC4Mode(QString inputFileName, QString outputFileName);
+    void runRC4Mode(QString inputFileName, QString outputFileName);
     QThread *getWorkerThread(Worker *);
 };
 

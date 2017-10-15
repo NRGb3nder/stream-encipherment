@@ -7,7 +7,8 @@ enum ErrorType
 {
     E_INVALID_INPUT_FILE,
     E_INVALID_OUTPUT_FILE,
-    E_KEY_NOT_FOUND
+    E_KEY_NOT_FOUND,
+    E_INVALID_KEY
 };
 
 #endif // TYPES_H

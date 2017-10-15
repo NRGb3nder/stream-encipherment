@@ -395,7 +395,18 @@
          <property name="checkable">
           <bool>false</bool>
          </property>
-         <layout class="QGridLayout" name="gridLayout_9"/>
+         <layout class="QGridLayout" name="gridLayout_9">
+          <item row="0" column="0">
+           <widget class="QLabel" name="lblRC4Key">
+            <property name="text">
+             <string>Secret key:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="edtRC4Key"/>
+          </item>
+         </layout>
         </widget>
        </item>
        <item row="14" column="0">
