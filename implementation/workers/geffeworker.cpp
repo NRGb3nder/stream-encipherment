@@ -4,8 +4,8 @@ GeffeWorker::GeffeWorker(QString inputFileName, QString outputFileName,
         LFSRData::ContentLFSR1 initKeyLFSR1, LFSRData::ContentLFSR2 initKeyLFSR2,
         LFSRData::ContentLFSR3 initKeyLFSR3)
 {
-    Worker::inputFileName = inputFileName;
-    Worker::outputFileName = outputFileName;
+    setInputFileName(inputFileName);
+    setOutputFileName(outputFileName);
     firstReg = new LFSR<LFSRData::ContentLFSR1>(initKeyLFSR1, LFSRData::tapsLFSR1);
     secondReg = new LFSR<LFSRData::ContentLFSR2>(initKeyLFSR2, LFSRData::tapsLFSR2);
     thirdReg = new LFSR<LFSRData::ContentLFSR3>(initKeyLFSR3, LFSRData::tapsLFSR3);
@@ -18,8 +18,8 @@ void GeffeWorker::startWork()
     const int BIN_CONTENT_MAX_LENGTH = BIN_HEADER_MAX_LENGTH * 2;
     const int KEY_QUANTITY = 3;
 
-    QFile inputFile(inputFileName);
-    QFile outputFile(outputFileName);
+    QFile inputFile(getInputFileName());
+    QFile outputFile(getOutputFileName());
     inputFile.open(QIODevice::ReadOnly);
     outputFile.open(QIODevice::WriteOnly);
 

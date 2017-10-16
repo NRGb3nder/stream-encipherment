@@ -11,11 +11,17 @@ public:
     explicit Worker() {}
     virtual ~Worker() {}
 
-protected:
+private:
     QString inputFileName;
     QString outputFileName;
+
+protected:
     quint8 readBlock(QFile &inputFile);
     void writeBlock(quint8 blockOut, QFile &outputFile);
+    QString getInputFileName();
+    QString getOutputFileName();
+    void setInputFileName(QString fileName);
+    void setOutputFileName(QString fileName);
 
 signals:
     void progress(int progressValue);

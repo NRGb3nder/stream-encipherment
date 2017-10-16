@@ -12,3 +12,23 @@ void Worker::writeBlock(quint8 blockOut, QFile &outputFile)
     char byteOut = blockOut;
     outputFile.write(&byteOut, 1);
 }
+
+QString Worker::getInputFileName()
+{
+    return inputFileName;
+}
+
+QString Worker::getOutputFileName()
+{
+    return outputFileName;
+}
+
+void Worker::setInputFileName(QString fileName)
+{
+    inputFileName = fileName;
+}
+
+void Worker::setOutputFileName(QString fileName)
+{
+    outputFileName = fileName;
+}

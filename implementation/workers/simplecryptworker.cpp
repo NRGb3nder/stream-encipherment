@@ -2,8 +2,8 @@
 
 SimpleCryptWorker::SimpleCryptWorker(QString inputFileName, QString outputFileName, LFSRData::ContentLFSR1 initKey)
 {
-    Worker::inputFileName = inputFileName;
-    Worker::outputFileName = outputFileName;
+    setInputFileName(inputFileName);
+    setOutputFileName(outputFileName);
     reg = new LFSR<LFSRData::ContentLFSR1>(initKey, LFSRData::tapsLFSR1);
 }
 
@@ -13,8 +13,8 @@ void SimpleCryptWorker::startWork()
     const int BIN_HEADER_MAX_LENGTH = BIN_ELEM_SIZE * 32;
     const int BIN_CONTENT_MAX_LENGTH = BIN_HEADER_MAX_LENGTH * 2;
 
-    QFile inputFile(inputFileName);
-    QFile outputFile(outputFileName);
+    QFile inputFile(getInputFileName());
+    QFile outputFile(getOutputFileName());
     inputFile.open(QIODevice::ReadOnly);
     outputFile.open(QIODevice::WriteOnly);
 

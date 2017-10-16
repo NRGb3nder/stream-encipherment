@@ -3,8 +3,8 @@
 RC4Worker::RC4Worker(QString inputFileName, QString outputFileName, std::vector<quint8> &secretKey) :
         generatorParameterI(0), generatorParameterJ(0)
 {
-    Worker::inputFileName = inputFileName;
-    Worker::outputFileName = outputFileName;
+    setInputFileName(inputFileName);
+    setOutputFileName(outputFileName);
     initializeSBoxDefault();
     initializeSBoxWithKey(secretKey);
 }
@@ -50,8 +50,8 @@ void RC4Worker::startWork()
     const int DEC_HEADER_MAX_LENGTH = DEC_ELEM_SIZE * 32;
     const int DEC_CONTENT_MAX_LENGTH = DEC_HEADER_MAX_LENGTH * 2;
 
-    QFile inputFile(inputFileName);
-    QFile outputFile(outputFileName);
+    QFile inputFile(getInputFileName());
+    QFile outputFile(getOutputFileName());
     inputFile.open(QIODevice::ReadOnly);
     outputFile.open(QIODevice::WriteOnly);
 
