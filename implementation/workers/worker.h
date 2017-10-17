@@ -26,9 +26,6 @@ protected:
 signals:
     void progress(int progressValue);
     void done(QString sourceContent, QString resultContent, QString keyContent);
-
-public slots:
-    void startWork() {}
 };
 
 #endif // WORKER_H
