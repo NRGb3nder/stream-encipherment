@@ -71,6 +71,9 @@ void MainWindow::displayError(ErrorType error)
         case E_INVALID_OUTPUT_FILE:
             mbError.setText("File output error!");
             break;
+        case E_SINGLE_FILE_IO:
+            mbError.setText("Input file can not be used for output");
+            break;
         case E_KEY_NOT_FOUND:
             mbError.setText("Initial key required for procedure execution!");
             break;
@@ -244,18 +247,22 @@ void MainWindow::on_btnChooseOutput_clicked()
 
 void MainWindow::on_btnExecute_clicked()
 {
-    QString inputFileName = ui->edtInputFile->text();
-    QString outputFileName = ui->edtOutputFile->text();
-    QFile inputFile(inputFileName);
-    QFile outputFile(outputFileName);
-
     ui->txtResult->clear();
     ui->txtSource->clear();
     ui->txtKey->clear();
     ui->txtLog->clear();
 
+    QString inputFileName = ui->edtInputFile->text();
+    QFile inputFile(inputFileName);
     if (!inputFile.open(QIODevice::ReadOnly)) {
         displayError(E_INVALID_INPUT_FILE);
+        return;
+    }
+
+    QString outputFileName = ui->edtOutputFile->text();
+    QFile outputFile(outputFileName);
+    if (outputFileName == inputFileName) {
+        displayError(E_SINGLE_FILE_IO);
         return;
     }
     if (!outputFile.open(QIODevice::WriteOnly)) {
