@@ -279,14 +279,9 @@ void MainWindow::on_btnExecute_clicked()
 
     if (ui->rbtnSimple->isChecked()) {
         runSimpleStreamEncryptionMode(inputFileName, outputFileName);
-        return;
-    }
-    if (ui->rbtnGeffe->isChecked()) {
+    } else if (ui->rbtnGeffe->isChecked()) {
         runGeffeMode(inputFileName, outputFileName);
-        return;
-    }
-    if (ui->rbtnRC4->isChecked()) {
+    } else if (ui->rbtnRC4->isChecked()) {
         runRC4Mode(inputFileName, outputFileName);
-        return;
     }
 }
