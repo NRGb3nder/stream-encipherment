@@ -61,18 +61,19 @@ void GeffeWorker::startWork()
         emit progress(100 * i/fileSize);
     }
 
-    if (keyContent.length() >= BIN_CONTENT_MAX_LENGTH) {
+    if (keyPartContent[0].length() >= BIN_CONTENT_MAX_LENGTH) {
         for (int k = 0; k < KEY_QUANTITY; k++) {
             keyPartContent[k].insert(BIN_HEADER_MAX_LENGTH, "\n...\n");
         }
         geffeKey.insert(BIN_HEADER_MAX_LENGTH, "\n...\n");
-        keyContent = "Geffe key:\n" + geffeKey +
-                "\n\nLFSR1 key:\n" + keyPartContent[0] +
-                "\n\nLFSR2 key:\n" + keyPartContent[1] +
-                "\n\nLFSR3 key:\n" + keyPartContent[2];
         sourceContent.insert(BIN_HEADER_MAX_LENGTH, "\n...\n");
         resultContent.insert(BIN_HEADER_MAX_LENGTH, "\n...\n");
     }
+
+    keyContent = "Geffe key:\n" + geffeKey +
+            "\n\nLFSR1 key:\n" + keyPartContent[0] +
+            "\n\nLFSR2 key:\n" + keyPartContent[1] +
+            "\n\nLFSR3 key:\n" + keyPartContent[2];
 
     inputFile.close();
     outputFile.close();
