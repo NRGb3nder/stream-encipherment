@@ -1,4 +1,4 @@
-# stream-encipherment
+# stream-encryption
 Information theory, lab #2
 
 1\. Implement stream encryption/decryption system for files of any type, using the __LFSR-based key sequence generator__. The initial register state should be specified by user. The text field of the initial register state should ignore any characters except 1 and 0. The generated key (a sequence of 1's and 0's) and the encrypted file in binary representation should be displayed on the screen. This program should not be a console application. The result of the process is the encrypted/decrypted file.
